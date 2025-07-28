@@ -1,12 +1,7 @@
-# ig_post_preprocessor.py — polished Streamlit layout with visible instructions
+# streamlit_app.py — drop expander, always visible instructions
 """
-📸 IG Post Preprocessor – Streamlit
-----------------------------------
-This version features:
-
-* **Always visible** step-by-step instructions
-* Cleaner layout with emojis and markdown formatting
-* No hidden UI elements for a smoother experience
+📝 Text Transformation App – Streamlit
+-------------------------------------
 """
 
 import streamlit as st
@@ -14,29 +9,36 @@ import pandas as pd
 import re
 from io import StringIO
 
-# ──────────────────────────────  Page Set-up  ──────────────────────────────
+# ──────────────────────────────  Page set‑up  ──────────────────────────────
 st.set_page_config(
-    page_title="IG Post Preprocessor",
-    page_icon="📸",
-    layout="centered",
+    page_title="Text Transformation App",
+    page_icon="📝",
+    layout="wide",
+    initial_sidebar_state="expanded",
 )
 
 st.markdown(
     """
 <style>
+    /* ─── Hero title ─── */
     .block-container h1:first-child {
         text-align: center;
         font-size: 3rem;
         font-weight: 800;
         margin-bottom: 1.25rem;
     }
+    /* ─── Compact top padding ─── */
     .block-container { padding-top: 1.2rem; }
+    /* ─── Sidebar header size ─── */
+    section[data-testid="stSidebar"] h2 {
+        font-size: 1.05rem; margin-bottom: .3rem;
+    }
 </style>
     """,
     unsafe_allow_html=True,
 )
 
-st.title("📸 IG Post Preprocessor")
+st.title("📝 Text Transformation App")
 
 # ──────────────────────────────  How to Use  ──────────────────────────────
 st.markdown(
@@ -55,6 +57,7 @@ st.markdown(
 st.header("Step 1: 📂 Upload Your Dataset")
 uploaded_file = st.file_uploader("Upload a CSV file with IG post data", type="csv")
 
+# ──────────────────────────────  Step 2: Select Columns  ──────────────────────────────
 if uploaded_file:
     raw_df = pd.read_csv(uploaded_file)
     st.success("File uploaded successfully!")
@@ -62,19 +65,23 @@ if uploaded_file:
     st.markdown("### 🔍 Available Columns")
     st.write(raw_df.columns.tolist())
 
-    # ──────────────────────────────  Step 2: Select Columns  ──────────────────────────────
-    st.header("Step 2: 🔧 Select Relevant Columns")
     id_col = st.selectbox("Select the ID column (e.g., shortcode)", raw_df.columns)
     context_col = st.selectbox("Select the Context column (e.g., caption)", raw_df.columns)
 
     raw_df = raw_df.rename(columns={id_col: "ID", context_col: "Context"})
 
-    # ──────────────────────────────  Step 3: Configure Options  ──────────────────────────────
-    st.header("Step 3: 🛠️ Configure Processing Options")
-    include_hashtags = st.checkbox("Include hashtags as separate sentences", value=True)
+else:
+    raw_df = pd.DataFrame()
+    id_col = None
+    context_col = None
 
-    # ──────────────────────────────  Step 4: Process Data  ──────────────────────────────
-    st.header("Step 4: ⚙️ Process Captions")
+# ──────────────────────────────  Step 3: Configure Options  ──────────────────────────────
+st.header("Step 3: 🛠️ Configure Processing Options")
+include_hashtags = st.checkbox("Include hashtags as separate sentences", value=True)
+
+# ──────────────────────────────  Step 4: Process Data  ──────────────────────────────
+st.header("Step 4: ⚙️ Process Captions")
+if not raw_df.empty and id_col and context_col:
     data = []
     for _, row in raw_df.iterrows():
         pattern = r'(?<=[.!?])\s+'
