@@ -45,8 +45,9 @@ st.markdown(
 1. **Upload your CSV file** containing Instagram post data  
 2. **Select ID Column** – the unique identifier for each post (e.g., shortcode)  
 3. **Select Context Column** – the text/caption content to process  
-4. **Click to Process** – The app will split text into sentences/hashtags  
-5. **Preview and Download** the processed result as a new CSV file
+4. **Configure Options** – Choose whether to include hashtags as separate sentences  
+5. **Click to Process** – The app will split text accordingly  
+6. **Preview and Download** the processed result as a new CSV file
     """
 )
 
@@ -68,11 +69,18 @@ if uploaded_file:
 
     raw_df = raw_df.rename(columns={id_col: "ID", context_col: "Context"})
 
-    # ──────────────────────────────  Step 3: Process Data  ──────────────────────────────
-    st.header("Step 3: ⚙️ Process Captions")
+    # ──────────────────────────────  Step 3: Configure Options  ──────────────────────────────
+    st.header("Step 3: 🛠️ Configure Processing Options")
+    include_hashtags = st.checkbox("Include hashtags as separate sentences", value=True)
+
+    # ──────────────────────────────  Step 4: Process Data  ──────────────────────────────
+    st.header("Step 4: ⚙️ Process Captions")
     data = []
     for _, row in raw_df.iterrows():
-        sentences = re.split(r'(?<=[.!?])\s+|(?=#[^\s]+)', str(row["Context"]))
+        pattern = r'(?<=[.!?])\s+'
+        if include_hashtags:
+            pattern += r'|(?=#[^\s]+)'
+        sentences = re.split(pattern, str(row["Context"]))
         for i, sentence in enumerate(sentences):
             cleaned = re.sub(r'\s+', ' ', sentence.strip())
             if cleaned and not re.fullmatch(r'[.!?]+', cleaned):
@@ -84,8 +92,8 @@ if uploaded_file:
 
     final_df = pd.DataFrame(data)
 
-    # ──────────────────────────────  Step 4: Preview and Download  ──────────────────────────────
-    st.header("Step 4: 📊 Preview & Download")
+    # ──────────────────────────────  Step 5: Preview and Download  ──────────────────────────────
+    st.header("Step 5: 📊 Preview & Download")
     st.markdown("### Preview of Processed Data")
     st.dataframe(final_df.head())
 
