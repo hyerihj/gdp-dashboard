@@ -1,21 +1,13 @@
-# streamlit_app.py — visual polish to match mock‑up
+# streamlit_app.py — updated title & instructions
 """
-Minimalist IG Post Processor – Streamlit app
-===========================================
-This version keeps **all of your existing logic** but tweaks the _look‑and‑feel_ so it
-resembles the screenshots you shared:
+📝 Text Transformation App – Streamlit
+-------------------------------------
+Visual tweaks requested:
 
-*   ✨  **Centred, oversized title**
-*   🧭  Collapsible **“How to Use”** section in the main column
-*   Clean sidebar with numeric step headers
-*   Tight top padding for a neater hero block
+* Change hero title to **“📝 Text Transformation App”**
+* Update the **How to Use** guidance to the wording you supplied
 
-Save this as **`streamlit_app.py`** and run:
-
-```bash
-pip install streamlit pandas
-streamlit run streamlit_app.py
-```
+Behaviour is otherwise identical to the previous build.
 """
 
 from io import StringIO
@@ -27,17 +19,17 @@ import streamlit as st
 
 # ──────────────────────────────  Page set‑up  ──────────────────────────────
 st.set_page_config(
-    page_title="Minimalist IG Post Processor",
-    page_icon="✨",
+    page_title="Text Transformation App",
+    page_icon="📝",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# Inject a sprinkle of CSS to centre the hero title & tighten vertical spacing
+# Inject CSS for centred hero + compact padding
 st.markdown(
     """
     <style>
-        /* ─── Main title ─── */
+        /* ─── Hero title ─── */
         .block-container h1:first-child {
             text-align: center;
             font-size: 3rem;
@@ -45,20 +37,17 @@ st.markdown(
             margin-bottom: 1.25rem;
         }
         /* ─── Compact top padding ─── */
-        .block-container {
-            padding-top: 1.2rem;
-        }
+        .block-container { padding-top: 1.2rem; }
         /* ─── Sidebar header size ─── */
         section[data-testid="stSidebar"] h2 {
-            font-size: 1.05rem;
-            margin-bottom: .3rem;
+            font-size: 1.05rem; margin-bottom: .3rem;
         }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-st.title("Minimalist IG Post Processor")
+st.title("📝 Text Transformation App")
 
 # ──────────────────────────────  Default dictionary  ──────────────────────────────
 DEFAULT_DICT = {
@@ -69,15 +58,17 @@ DEFAULT_DICT = {
 }
 
 # ──────────────────────────────  Sidebar  ──────────────────────────────
-## 1️⃣  Upload
+## 1️⃣  Upload
 st.sidebar.header("1️⃣  Upload your CSV")
 uploaded_file = st.sidebar.file_uploader(
-    "Choose an Instagram CSV file (≤200 MB)", type=["csv"], accept_multiple_files=False
+    "Choose an Instagram CSV file (≤200 MB)",
+    type=["csv"],
+    accept_multiple_files=False,
 )
 
 st.sidebar.markdown("---")
 
-## 2️⃣  Dictionary
+## 2️⃣  Dictionary
 st.sidebar.header("2️⃣  Modify keyword dictionary")
 
 dict_input = st.sidebar.text_area(
@@ -135,13 +126,21 @@ def process_dataframe(df: pd.DataFrame, kw_dict: dict) -> pd.DataFrame:
 with st.expander("ℹ️  How to Use", expanded=False):
     st.markdown(
         """
-1. **Upload your CSV** in the sidebar. File must contain `shortcode` & `caption` columns.
-2. **Edit the dictionary** (optional) – JSON keys → category names.
-3. **Click _Run processor_** to explode captions into sentence‑level rows.
-4. **Download the CSV** of the transformed data.
+### How to Use
+1. **Upload your CSV file** using the file uploader above  
+2. **Select ID Column** – Choose the column that uniquely identifies each record  
+3. **Select Context Column** – Choose the column containing the text to be transformed  
+4. **Configure options** – Choose whether to include hashtags as separate sentences  
+5. **Click _Transform_** – Process your data into sentence‑level format  
+6. **Download results** – Get your transformed data as a CSV file  
 
-**Output columns**  
-• `ID`  • `Sentence ID`  • `Context`  • `Statement`  • `Category`
+### Output Format  
+The transformed data will have the following columns:
+
+- **ID**: The identifier from your selected ID column  
+- **Sentence ID**: Sequential number for each sentence within a record  
+- **Context**: The original text from your Context column  
+- **Statement**: Individual sentences extracted from the context  
         """
     )
 
@@ -156,7 +155,7 @@ if not {"shortcode", "caption"}.issubset(raw_df.columns):
     st.error("CSV must contain `shortcode` and `caption` columns.")
     st.stop()
 
-if st.sidebar.button("▶️  Run processor"):
+if st.sidebar.button("⚙️  Transform"):
     with st.spinner("Processing …"):
         final_df = process_dataframe(raw_df, keyword_dict)
 
@@ -167,5 +166,9 @@ if st.sidebar.button("▶️  Run processor"):
     buff = StringIO()
     final_df.to_csv(buff, index=False)
     st.download_button(
-        "💾  Download CSV", data=buff.getvalue(), mime="text/csv", file_name="ig_posts_classified.csv"
+        "💾  Download CSV",
+        data=buff.getvalue(),
+        mime="text/csv",
+        file_name="transformed_text.csv",
     )
+
