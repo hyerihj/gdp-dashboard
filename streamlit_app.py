@@ -1,7 +1,7 @@
 # streamlit_app.py — drop expander, always visible instructions
 """
 📝 Text Transformation App – Streamlit
--------------------------------------
+
 """
 
 import streamlit as st
@@ -60,10 +60,19 @@ uploaded_file = st.file_uploader("Upload a CSV file with IG post data", type="cs
 # ──────────────────────────────  Step 2: Select Columns  ──────────────────────────────
 if uploaded_file:
     raw_df = pd.read_csv(uploaded_file)
-    st.success("File uploaded successfully!")
+    st.success(f"File uploaded successfully! Found {raw_df.shape[0]} rows and {raw_df.shape[1]} columns.")
 
-    st.markdown("### 🔍 Available Columns")
-    st.write(raw_df.columns.tolist())
+    st.markdown("### 🔍 Data Preview")
+    st.dataframe(raw_df)
+
+    st.markdown("### 📊 Column Information")
+    column_info = pd.DataFrame({
+        "Column": raw_df.columns,
+        "Type": [raw_df[col].dtype for col in raw_df.columns],
+        "Non-null Count": [raw_df[col].count() for col in raw_df.columns],
+        "Sample Value": [raw_df[col].dropna().iloc[0] if not raw_df[col].dropna().empty else "" for col in raw_df.columns],
+    })
+    st.dataframe(column_info)
 
     id_col = st.selectbox("Select the ID column (e.g., shortcode)", raw_df.columns)
     context_col = st.selectbox("Select the Context column (e.g., caption)", raw_df.columns)
