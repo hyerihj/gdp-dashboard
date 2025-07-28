@@ -1,7 +1,7 @@
 # streamlit_app.py — drop expander, always visible instructions
 """
 📝 Text Transformation App – Streamlit
-
+-------------------------------------
 """
 
 import streamlit as st
@@ -57,7 +57,6 @@ st.markdown(
 st.header("Step 1: 📂 Upload Your Dataset")
 uploaded_file = st.file_uploader("Upload a CSV file with IG post data", type="csv")
 
-# ──────────────────────────────  Step 2: Select Columns  ──────────────────────────────
 if uploaded_file:
     raw_df = pd.read_csv(uploaded_file)
     st.success(f"File uploaded successfully! Found {raw_df.shape[0]} rows and {raw_df.shape[1]} columns.")
@@ -76,21 +75,10 @@ if uploaded_file:
 
     id_col = st.selectbox("Select the ID column (e.g., shortcode)", raw_df.columns)
     context_col = st.selectbox("Select the Context column (e.g., caption)", raw_df.columns)
+    include_hashtags = st.checkbox("Include hashtags as separate sentences", value=True)
 
     raw_df = raw_df.rename(columns={id_col: "ID", context_col: "Context"})
 
-else:
-    raw_df = pd.DataFrame()
-    id_col = None
-    context_col = None
-
-# ──────────────────────────────  Step 3: Configure Options  ──────────────────────────────
-st.header("Step 3: 🛠️ Configure Processing Options")
-include_hashtags = st.checkbox("Include hashtags as separate sentences", value=True)
-
-# ──────────────────────────────  Step 4: Process Data  ──────────────────────────────
-st.header("Step 4: ⚙️ Process Captions")
-if not raw_df.empty and id_col and context_col:
     data = []
     for _, row in raw_df.iterrows():
         pattern = r'(?<=[.!?])\s+'
@@ -108,8 +96,7 @@ if not raw_df.empty and id_col and context_col:
 
     final_df = pd.DataFrame(data)
 
-    # ──────────────────────────────  Step 5: Preview and Download  ──────────────────────────────
-    st.header("Step 5: 📊 Preview & Download")
+    st.header("📊 Preview & Download")
     st.markdown("### Preview of Processed Data")
     st.dataframe(final_df.head())
 
