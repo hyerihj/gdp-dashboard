@@ -50,6 +50,13 @@ st.markdown(
 4. **Configure Options** – Choose whether to include hashtags as separate sentences  
 5. **Click to Process** – The app will split text accordingly  
 6. **Preview and Download** the processed result as a new CSV file
+
+### Output Format
+The transformed data will have the following columns:
+- **ID**: The identifier from your selected ID column  
+- **Sentence ID**: Sequential number for each sentence within a record  
+- **Context**: The original text from your Context column  
+- **Statement**: Individual sentences extracted from the context
     """
 )
 
@@ -90,6 +97,7 @@ if uploaded_file:
             if cleaned and not re.fullmatch(r'[.!?]+', cleaned):
                 data.append({
                     "ID": row["ID"],
+                    "Context": row["Context"],
                     "Statement": cleaned,
                     "Sentence ID": i
                 })
