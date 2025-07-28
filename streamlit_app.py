@@ -1,13 +1,11 @@
-# streamlit_app.py — updated title & instructions
+# streamlit_app.py — drop expander, always visible instructions
 """
 📝 Text Transformation App – Streamlit
 -------------------------------------
-Visual tweaks requested:
+Changes in this patch:
 
-* Change hero title to **“📝 Text Transformation App”**
-* Update the **How to Use** guidance to the wording you supplied
-
-Behaviour is otherwise identical to the previous build.
+* **Removed** the collapsible expander. The How‑to section now shows by default.
+* No other behaviour changed.
 """
 
 from io import StringIO
@@ -117,15 +115,15 @@ def process_dataframe(df: pd.DataFrame, kw_dict: dict) -> pd.DataFrame:
                         "Context": row["Context"],
                         "Sentence ID": i,
                         "Statement": clean,
-                        "Category": classify_sentence(clean, kw_dict),
+                        "Category": classify_sentence(clean, keyword_dict),
                     }
                 )
     return pd.DataFrame(rows)
 
-# ──────────────────────────────  How‑to expander  ──────────────────────────────
-with st.expander("ℹ️  How to Use", expanded=False):
-    st.markdown(
-        """
+# ──────────────────────────────  How to Use  ──────────────────────────────
+
+st.markdown(
+    """
 ### How to Use
 1. **Upload your CSV file** using the file uploader above  
 2. **Select ID Column** – Choose the column that uniquely identifies each record  
@@ -134,15 +132,15 @@ with st.expander("ℹ️  How to Use", expanded=False):
 5. **Click _Transform_** – Process your data into sentence‑level format  
 6. **Download results** – Get your transformed data as a CSV file  
 
-### Output Format  
+### Output Format
 The transformed data will have the following columns:
 
 - **ID**: The identifier from your selected ID column  
 - **Sentence ID**: Sequential number for each sentence within a record  
 - **Context**: The original text from your Context column  
 - **Statement**: Individual sentences extracted from the context  
-        """
-    )
+    """
+)
 
 # ──────────────────────────────  Main logic  ──────────────────────────────
 if uploaded_file is None:
@@ -171,4 +169,5 @@ if st.sidebar.button("⚙️  Transform"):
         mime="text/csv",
         file_name="transformed_text.csv",
     )
+
 
